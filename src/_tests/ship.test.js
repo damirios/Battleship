@@ -17,7 +17,7 @@ test("hit second block of three block ship", () => {
     expect(ship.hitBlocks).toEqual([false, true, false]);
 });
 
-test("four block ship will sink if it's all four blocks is hit", () => {
+test("four block ship will sink if all it's four blocks is hit", () => {
     const ship = shipFactory(4);
     ship.hit(0);
     ship.hit(1);

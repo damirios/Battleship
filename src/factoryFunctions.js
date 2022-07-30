@@ -32,6 +32,10 @@ const shipFactory = function(length, shipBlocks = []) {
 
 const gameboardFactory = function() {
     let gameboard = {};
+
+    // ships property. It contains all the ships of this gameboard
+    let ships = [];
+
     // gamefield property consists playing field 10x10. Initially it is empty - each square is ""
     gameboard.gamefield = [];
     for (let i = 0; i < 10; i++) {
@@ -43,7 +47,6 @@ const gameboardFactory = function() {
 
     // place a ship in gamefield
     gameboard.addShip = function(length, align, x0, y0) {
-        console.log(this.gamefield);
         if (length > 0) {
 
             if (align == "horizontal") {
@@ -63,6 +66,13 @@ const gameboardFactory = function() {
                     if (isAnyBlockOccupied) {
                         return "cannot place the ship here because of another ship"; // WRITE A FUNCTION
                     } else {// all checks passed, we can place a ship and mark adjoining blocks
+
+                        // add this ship to ships array
+                        const ship = shipFactory(length);
+                        ship.align = align;
+                        ship.x0 = x0;
+                        ship.y0 = y0;
+                        ships.push(ship);
 
                         // firstly mark adjoining blocks
                         // common side blocks
@@ -148,6 +158,13 @@ const gameboardFactory = function() {
                         return "cannot place the ship here because of another ship"; // WRITE A FUNCTION
                     } else { // all checks passed, we can place a ship and mark adjoining blocks
 
+                        // add this ship to ships array
+                        const ship = shipFactory(length);
+                        ship.align = align;
+                        ship.x0 = x0;
+                        ship.y0 = y0;
+                        ships.push(ship);
+
                         // firstly mark adjoining blocks
                         // common side blocks
                         if (x0 + length <= 9) {
@@ -222,6 +239,7 @@ const gameboardFactory = function() {
 
     // reset gamefield
     gameboard.reset = function() {
+        ships = [];
         for (let i = 0; i < 10; i++) {
             this.gamefield[i] = [];
             for (let j = 0; j < 10; j++) {
@@ -230,6 +248,33 @@ const gameboardFactory = function() {
         }
     }
     
+    // receive attack
+    gameboard.receiveAttack = function(x, y) {
+        gameboard.gamefield[x][y] == "ship block" ? gameboard.gamefield[x][y] = "hit" : gameboard.gamefield[x][y] = "miss";
+        
+        for (let ship of ships) {
+            if (ship.align == "horizontal") {
+                if ( (ship.x0 == x) && (ship.y0 <= y) && (ship.y0 + ship.length - 1 >= y) ) {
+                    ship.hit(y - ship.y0);
+                }
+            } else if (ship.align == "vertical") {
+                if ( (ship.y0 == y) && (ship.x0 <= x) && (ship.x0 + ship.length - 1 >= x) ) {
+                    ship.hit(x - ship.x0);
+                }
+            }
+        }
+    }
+
+    gameboard.areAllShipsSunk = function() {
+        console.log(ships);
+        for (let ship of ships) {
+            if (!ship.isSunk()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     return gameboard;
 }
 
